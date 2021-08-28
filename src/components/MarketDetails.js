@@ -1,9 +1,19 @@
 import React from "react";
-import { Paper } from "@material-ui/core";
+import { Paper, Tab, Tabs, Typography } from "@material-ui/core";
 import useStyles2 from "../styles/marketDetails.jsx";
+import { Line } from "react-chartjs-2";
+import { useState } from "react";
+import { MuiThemeProvider, createTheme } from "@material-ui/core/styles";
 
 function MarketDetails(props) {
   const classes = useStyles2();
+  const theme = createTheme({
+    palette: {},
+  });
+  const [value, setValue] = useState(0);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
   return (
     <div className={classes.body}>
       <Paper className={classes.header} elevation={5}>
@@ -28,6 +38,47 @@ function MarketDetails(props) {
           </div>
         </div>
       </Paper>
+      <div className={classes.row}>
+        <Paper className={classes.chart}>
+          <Line data={props.market.data} options={props.market.options} />
+        </Paper>
+        <Paper className={classes.rightSection}>
+          <MuiThemeProvider theme={theme}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              textColor=""
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: "#F48FB1",
+                  color: "white",
+                },
+              }}
+              className={classes.tabs}
+              centered
+            >
+              <Tab label="Buy" />
+              <Tab label="Sell" />
+            </Tabs>
+          </MuiThemeProvider>
+          {value === 0 && (
+            <div className={classes.tabContent1}>
+              <Typography variant={"h7"} className={classes.pickOutcome}>
+                Pick outcome
+              </Typography>
+              <div className={classes.outcomes}>
+                <Paper className={classes.yes}>Yes $0.64</Paper>
+                <Paper className={classes.no}>No $0.36</Paper>
+              </div>
+            </div>
+          )}
+          {value === 1 && (
+            <div className={classes.tabContent1}>
+              <Typography>HI 2</Typography>
+            </div>
+          )}
+        </Paper>
+      </div>
     </div>
   );
 }
