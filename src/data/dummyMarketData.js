@@ -6,6 +6,9 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-1",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will the US have more than 200,000 new daily COVID-19 cases on or before October 1, 2021?",
@@ -14,6 +17,9 @@ var markets = [
     volume: "$624,985",
     yes: 0.31,
     no: 0.69,
+    id: "market-2",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will Jake Paul or Tyron Woodley win their boxing match?",
@@ -22,6 +28,9 @@ var markets = [
     volume: "$12,985",
     yes: 0.61,
     no: 0.39,
+    id: "market-3",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will Cardano support smart contracts on Mainnet by October 1st, 2021?",
@@ -30,6 +39,9 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-4",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will Cardano support smart contracts on Mainnet by October 1st, 2021?",
@@ -38,6 +50,9 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-5",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will Cardano support smart contracts on Mainnet by October 1st, 2021?",
@@ -46,6 +61,8 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-6",
+    date: "Oct 5, 2021",
   },
   {
     name: "Will Cardano support smart contracts on Mainnet by October 1st, 2021?",
@@ -54,6 +71,9 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-7",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will Cardano support smart contracts on Mainnet by October 1st, 2021?",
@@ -62,6 +82,9 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-8",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
   {
     name: "Will Cardano support smart contracts on Mainnet by October 1st, 2021?",
@@ -70,6 +93,9 @@ var markets = [
     volume: "$714,985",
     yes: 0.81,
     no: 0.19,
+    id: "market-9",
+    date: "Oct 5, 2021",
+    liquidity: "$55,060",
   },
 ];
 
