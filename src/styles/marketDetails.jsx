@@ -61,7 +61,7 @@ const useStyles2 = makeStyles((theme) => ({
       },
       chart:{
         flex:2,
-        height:"350px",
+        height:"420px",
         backgroundColor:"#100C18",
         border: "1px solid #9282EC",
         padding:"20px",
@@ -77,7 +77,11 @@ const useStyles2 = makeStyles((theme) => ({
           backgroundColor:"#9282EC",
           margin:"0px 0px 10px 0px",
       },
-      pickOutcome:{
+      tabContent:{
+        display:"flex",
+        flexDirection:"column",
+      },
+      text:{
         margin:"10px",
       },
       outcomes:{
@@ -100,7 +104,48 @@ const useStyles2 = makeStyles((theme) => ({
         flex:1,
         margin:"10px",
         textAlign:"center",
-      }
+      },
+      input: {
+        color: "white",
+        border: "1px solid #9282EC",
+        padding: "10px",
+        flex:1
+      },
+      rowInput:{
+        display:"flex",
+        flexDirection:"row",
+        margin: "10px",
+        marginBottom: "20px",
+        justifyContent:"space-between",
+        alignItems:"center",
+      },
+      usdText:{
+        margin:"0px 0px 0px 10px"
+      },
+      rowBottom:{
+        display:"flex",
+        flexDirection:"row",
+        justifyContent:"space-between",
+        margin: "0px 10px 0px 0px",
+        alignItems:"center",
+      },
+      bottomText:{
+        fontSize:"16px",
+      },
+      bottomtextLeft:{
+        margin:"4px 0px 4px 10px"
+      },
+      button:{
+        flex:1,
+        alignItems:"center",
+        margin:"10px",
+        marginTop:"15px",
+        width:'calc(100% - 20px)',
+        backgroundColor:"#9282EC",
+        '&:hover': {
+          background: "#F48FB1",
+       },
+      },
 }));
 
 export default useStyles2;
