@@ -1,22 +1,23 @@
-import {
-  AppBar,
-  Button,
-  Toolbar,
-  Typography,
-  Paper,
-  InputBase,
-  Grid,
-} from "@material-ui/core";
-import { Search } from "@material-ui/icons";
+import { AppBar, Toolbar, Typography } from "@material-ui/core";
+import React, { useState } from "react";
 import "./App.css";
 import useStyles from "./styles/homepageDesign.jsx";
-import markets from "./data/dummyMarketData";
-import Market from "./components/Market";
+import Markets from "./components/Markets";
 import { Switch, Route, Link } from "react-router-dom";
 import MarketDetails from "./components/MarketDetails";
+import DisconnectButton from "./components/DisconnectButton";
+import ConnectButton from "./components/ConnectButton";
+import { TezosToolkit } from "@taquito/taquito";
 
 function App() {
   const classes = useStyles();
+  const [Tezos, setTezos] = useState(
+    new TezosToolkit("https://florencenet.smartpy.io")
+  );
+  const [wallet, setWallet] = useState(null);
+  const [userAddress, setUserAddress] = useState("");
+  const [userBalance, setUserBalance] = useState(0);
+  const [beaconConnection, setBeaconConnection] = useState(false);
   return (
     <div>
       <AppBar position="static">
@@ -32,63 +33,38 @@ function App() {
               <b>Predicto</b>
             </Typography>
           </Link>
-          <Button variant="outlined" className={classes.ConnectWallet}>
-            Connect Wallet
-          </Button>
+          {userAddress === "" && !beaconConnection ? (
+            <ConnectButton
+              Tezos={Tezos}
+              setWallet={setWallet}
+              setUserAddress={setUserAddress}
+              setUserBalance={setUserBalance}
+              setBeaconConnection={setBeaconConnection}
+              wallet={wallet}
+            />
+          ) : (
+            <DisconnectButton
+              wallet={wallet}
+              setUserAddress={setUserAddress}
+              setUserBalance={setUserBalance}
+              setWallet={setWallet}
+              setTezos={setTezos}
+              setBeaconConnection={setBeaconConnection}
+              userBalance={userBalance}
+              userAddress={userAddress}
+            />
+          )}
         </Toolbar>
       </AppBar>
       <Switch>
         <Route exact path="/">
           <div className="App">
-            <div className={classes.centerRow}>
-              <Paper
-                className={classes.dashBoard}
-                variant="outlined"
-                elevation={3}
-              >
-                <div className={classes.columnDashoard}>
-                  <Typography variant="h6">Portfolio Value</Typography>
-                  <Typography variant="h4">$0.00</Typography>
-                </div>
-                <div className={classes.columnDashoard}>
-                  <Typography variant="h6">Open Positions</Typography>
-                  <Typography variant="h4">$0.00</Typography>
-                </div>
-                <div className={classes.columnDashoard}>
-                  <Typography variant="h6">Cash</Typography>
-                  <Typography variant="h4">$0.00</Typography>
-                </div>
-              </Paper>
-            </div>
-            <div className={classes.centerRow}>
-              <div className={classes.TextFieldWhole}>
-                <Search style={{ color: "White" }} />
-                <InputBase
-                  className={classes.TextField}
-                  placeholder="Search markets..."
-                  variant="filled"
-                ></InputBase>
-              </div>
-            </div>
-            <Typography variant="h6" className={classes.popularMarketText}>
-              Popular Markets
-            </Typography>
-            <Grid container spacing={4}>
-              {markets.map((market, index) => (
-                <Grid item xs={12} sm={6} lg={4} xl={4} key={index}>
-                  <Market marketDetails={market} />
-                </Grid>
-              ))}
-            </Grid>
+            <Markets />
           </div>
         </Route>
         <Route
           path="/market/:id"
-          render={({ match }) => (
-            <MarketDetails
-              market={markets.find((m) => m.id === match.params.id)}
-            />
-          )}
+          render={({ match }) => <MarketDetails address={match.params.id} />}
         ></Route>
       </Switch>
     </div>

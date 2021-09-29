@@ -10,7 +10,8 @@ const useStyles = makeStyles((theme) => ({
   },
   ConnectWallet: {
     color: "#F48FB1",
-    borderColor: "#F48FB1"
+    borderColor: "#F48FB1",
+    margin: "0px 8px 0px 8px",
   },
   dashBoard: {
     margin: "20px 0px 20px 0px",
@@ -29,68 +30,102 @@ const useStyles = makeStyles((theme) => ({
   columnDashoard: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "start"
+    alignItems: "start",
   },
   TextFieldWhole: {
     backgroundColor: "#483F5A",
     width: "100%",
     display: "flex",
-    alignItems: 'center',
-    padding: '8px 8px',
+    alignItems: "center",
+    padding: "8px 8px",
     borderRadius: "4px",
   },
 
   TextField: {
     color: "grey",
     marginLeft: theme.spacing(1),
-    flex: 1
+    flex: 1,
   },
   popularMarketText: {
     color: "white",
     textAlign: "left",
     margin: "30px 0px 10px 0px",
   },
-  markets:{
-    padding:"15px",
-    textAlign:"left",
-    display:"flex",
-    flexDirection:"column",
-    backgroundColor:"transparent",
-    color:"white",
-    elevation:8,
+  markets: {
+    padding: "15px",
+    textAlign: "left",
+    display: "flex",
+    flexDirection: "column",
+    backgroundColor: "transparent",
+    color: "white",
+    elevation: 8,
     border: "2px solid #9282EC",
-    height:"165px",
-    justifyContent:"space-between"
+    height: "165px",
+    justifyContent: "space-between",
   },
-  marketRow:{
-    display:"flex",
-    flexDirection:"row",
-    justifyContent:"start",
+  marketRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "start",
   },
-  image:{
+  image: {
     borderRadius: "50%",
-    width:"35px",
-    height:"35px",
+    width: "35px",
+    height: "35px",
     objectFit: "cover",
     margin: "0px 10px 0px 0px",
   },
-  marketBottomRow:{
-    display:"flex",
-    flexDirection:"row",
-    justifyContent:"space-between",
+  marketBottomRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  marketBottomColumn:{
-    display:"flex",
-    flexDirection:"column",
+  marketBottomColumn: {
+    display: "flex",
+    flexDirection: "column",
   },
-  price:{
+  price: {
     backgroundColor: "#483F5A",
-    elevation:20,
+    elevation: 20,
     textAlign: "center",
     color: "#F48FB1",
     padding: "8px",
     margin: "8px 0px 0px 0px",
-  }
+  },
+  loading: {
+    display: "flex",
+    position: "absolute",
+    width: "80%",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  DisconnectWallet: {
+    color: "white",
+    borderColor: "#F48FB1",
+    margin: "0px 8px 0px 8px",
+  },
+  balanceText: {
+    color: "#9282EC",
+    fontSize: "12px",
+    fontWeight: "normal",
+    margin: "0px 8px 0px 0px",
+  },
+  addressText: {
+    fontSize: "12px",
+    fontWeight: "100",
+    color: "#CC56CC",
+    margin: "0px 0px 0px 5px",
+  },
+  buttonRow: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  appbarRight: {
+    display: "flex",
+    flexDirection: "row",
+  },
 }));
 
 export default useStyles;

@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Paper } from "@material-ui/core";
 import useStyles from "../styles/homepageDesign.jsx";
 import { Link } from "react-router-dom";
-function Market(props) {
+import axios from "axios";
+function Market({ marketData }) {
   const classes = useStyles();
+  const [marketDataContract, setMarketDataContract] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://api.florencenet.tzkt.io/v1/contracts/${marketData.contractAddress}/storage/`
+      )
+      .then((response) => {
+        setMarketDataContract(response.data);
+      });
+  }, [marketData.contractAddress]);
   return (
     <div
       style={{
@@ -11,37 +23,46 @@ function Market(props) {
       }}
     >
       <Link
-        to={`/market/${props.marketDetails.id}`}
+        to={`/market/${marketData.contractAddress}`}
         style={{ textDecoration: "none" }}
       >
         <Paper className={classes.markets}>
           <div className={classes.marketRow}>
             <img
-              src={props.marketDetails.image}
+              src={
+                "https://www.statnews.com/wp-content/uploads/2020/02/Coronavirus-CDC-645x645.jpg"
+              }
               alt="market"
               className={classes.image}
             />
-            {props.marketDetails.name}
+            {marketData.question}
           </div>
           <div className={classes.marketBottomRow}>
             <div className={classes.marketBottomColumn}>
-              Volume
-              <Paper className={classes.price}>
-                {`${props.marketDetails.volume}`}
-              </Paper>
+              Ends on
+              <Paper className={classes.price}>{`${marketData.startDate
+                .toDate()
+                .toDateString()
+                .slice(4)}`}</Paper>
             </div>
-            <div className={classes.marketBottomColumn}>
-              Yes
-              <Paper className={classes.price}>
-                {`$${props.marketDetails.yes}`}
-              </Paper>
-            </div>
-            <div className={classes.marketBottomColumn}>
-              No
-              <Paper className={classes.price}>
-                {`$${props.marketDetails.no}`}
-              </Paper>
-            </div>
+            {marketDataContract ? (
+              <>
+                <div className={classes.marketBottomColumn}>
+                  Yes
+                  <Paper className={classes.price}>{`${
+                    marketDataContract.yesPrice / 1000
+                  } Tez`}</Paper>
+                </div>
+                <div className={classes.marketBottomColumn}>
+                  No
+                  <Paper className={classes.price}>{`${
+                    marketDataContract.noPrice / 1000
+                  } Tez`}</Paper>
+                </div>
+              </>
+            ) : (
+              <div>Getting Price....</div>
+            )}
           </div>
         </Paper>
       </Link>
