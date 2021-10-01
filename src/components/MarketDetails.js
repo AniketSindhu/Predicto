@@ -16,7 +16,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import markets from "../data/dummyMarketData";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
-function MarketDetails({ address }) {
+function MarketDetails({ address, balance }) {
   const classes = useStyles2();
   const theme = createTheme({
     palette: {},
@@ -25,7 +25,7 @@ function MarketDetails({ address }) {
   const [marketDataContract, setMarketDataContract] = useState(null);
   const [value, setValue] = useState(0);
   const [outcome, setOutcome] = useState(0);
-  const [howMuch, setHowMuch] = useState(null);
+  const [howMuch, setHowMuch] = useState("");
 
   const handleChangeHowMuch = (event) => {
     setHowMuch(event.target.value);
@@ -108,6 +108,9 @@ function MarketDetails({ address }) {
               </Tabs>
             </MuiThemeProvider>
             {value === 0 && (
+              <form onSubmit={(event)=>{
+                event.preventDefault();
+                console.log(howMuch)}}>
               <div className={classes.tabContent}>
                 <Typography variant={"body1"} className={classes.text}>
                   Pick outcome
@@ -122,7 +125,7 @@ function MarketDetails({ address }) {
                 >
                   <ToggleButton
                     value={0}
-                    fullwidth={true}
+                    fullWidth
                     style={{
                       color: "white",
                       flex: 1,
@@ -135,7 +138,7 @@ function MarketDetails({ address }) {
                   <div style={{ width: "8px" }}></div>
                   <ToggleButton
                     value={1}
-                    fullwidth={true}
+                    fullWidth
                     style={{
                       flex: 1,
                       color: "white",
@@ -155,39 +158,37 @@ function MarketDetails({ address }) {
                 <Typography variant={"body1"} className={classes.text}>
                   How much?
                 </Typography>
-                <div className={classes.rowInput}>
+                <div className={classes.rowInput} style={{marginBottom:howMuch?howMuch<1?"2px":"20px":"20px"}}>
                   <InputBase
                     className={classes.input}
+                    style={{
+                      border: howMuch?howMuch<1?"1px solid red":howMuch>balance?"1px solid red":"1px solid #9282EC":"1px solid #9282EC",
+                    }}
                     placeholder="0"
                     variant="filled"
                     value={howMuch}
+                    type="number"
                     onChange={handleChangeHowMuch}
-                    
+                    error={howMuch?howMuch<1?true:howMuch>balance?true:false:false}
                   ></InputBase>
                   <Typography variant={"body1"} className={classes.usdText}>
                     Tez
                   </Typography>
                 </div>
+                {howMuch?howMuch<1?<Typography variant={"body1"} style={{color:"red",fontSize:"12px",marginLeft:"10px",marginBottom:"10px"}}>
+                  Cant be less than 1 tez
+                  </Typography>:howMuch>balance?<Typography variant={"body1"} style={{color:"red",fontSize:"12px",marginLeft:"10px",marginBottom:"10px"}}>
+                  Cannot be more than your balance
+                  </Typography>:"":""}
                 <div className={classes.rowBottom}>
                   <Typography
                     variant={"body1"}
                     className={classes.bottomtextLeft}
                   >
-                    LP Fee
+                    Base Cost
                   </Typography>
                   <Typography variant={"h6"} className={classes.bottomText}>
-                    3%
-                  </Typography>
-                </div>
-                <div className={classes.rowBottom}>
-                  <Typography
-                    variant={"body1"}
-                    className={classes.bottomtextLeft}
-                  >
-                    Your Avg. Price
-                  </Typography>
-                  <Typography variant={"h6"} className={classes.bottomText}>
-                    $3.40
+                    {howMuch?howMuch:0} tez
                   </Typography>
                 </div>
                 <div className={classes.rowBottom}>
@@ -198,7 +199,7 @@ function MarketDetails({ address }) {
                     Estimated Shares Bought
                   </Typography>
                   <Typography variant={"h6"} className={classes.bottomText}>
-                    14
+                    14 {outcome===0?"Yes":"No"}
                   </Typography>
                 </div>
                 <div className={classes.rowBottom}>
@@ -206,10 +207,10 @@ function MarketDetails({ address }) {
                     variant={"body1"}
                     className={classes.bottomtextLeft}
                   >
-                    Max Return
+                    Potential Profit
                   </Typography>
                   <Typography variant={"h6"} className={classes.bottomText}>
-                    21%
+                    21 tez
                   </Typography>
                 </div>
                 <div className={classes.buttonDiv}>
@@ -223,7 +224,7 @@ function MarketDetails({ address }) {
                     Buy
                   </Button>
                 </div>
-              </div>
+              </div></form>
             )}
             {value === 1 && (
               <div className={classes.tabContent}>
@@ -289,7 +290,7 @@ function MarketDetails({ address }) {
                     variant="contained"
                     color="primary"
                     className={classes.button}
-                    fullWidth={true}
+                    fullWidth
                   >
                     Sell
                   </Button>

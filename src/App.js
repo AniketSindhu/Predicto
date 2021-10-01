@@ -72,7 +72,7 @@ function App() {
           </Route>
           <Route
             path="/market/:id"
-            render={({ match }) => <MarketDetails address={match.params.id} />}
+            render={({ match }) => <MarketDetails address={match.params.id} balance={userBalance} />}
           ></Route>
         </Switch>
       </div>

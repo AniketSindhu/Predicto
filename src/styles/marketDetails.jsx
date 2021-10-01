@@ -138,7 +138,6 @@ const useStyles2 = makeStyles((theme) => ({
     margin: "4px 0px 4px 10px",
   },
   button: {
-    flex: 1,
     alignItems: "center",
     margin: "10px",
     marginTop: "15px",
@@ -147,6 +146,9 @@ const useStyles2 = makeStyles((theme) => ({
     "&:hover": {
       backgroundColor: "#F48FB1",
     },
+  },
+  buttonDiv: {
+    flex: 1,
   },
   loading: {
     display: "flex",
