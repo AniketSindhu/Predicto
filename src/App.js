@@ -8,7 +8,8 @@ import MarketDetails from "./components/MarketDetails";
 import DisconnectButton from "./components/DisconnectButton";
 import ConnectButton from "./components/ConnectButton";
 import { TezosToolkit } from "@taquito/taquito";
-
+import { ThemeProvider } from "@material-ui/core";
+import { createTheme } from "@material-ui/core/styles";
 function App() {
   const classes = useStyles();
   const [Tezos, setTezos] = useState(
@@ -18,56 +19,64 @@ function App() {
   const [userAddress, setUserAddress] = useState("");
   const [userBalance, setUserBalance] = useState(0);
   const [beaconConnection, setBeaconConnection] = useState(false);
+  const appliedTheme = createTheme({
+    palette: {
+      type: "dark",
+      mode: "dark",
+    },
+  });
   return (
-    <div>
-      <AppBar position="static">
-        <Toolbar className={classes.toolbar}>
-          <Link
-            to={"/"}
-            style={{
-              textDecoration: "none",
-              color: "white",
-            }}
-          >
-            <Typography variant="h5" style={{ cursor: "pointer" }}>
-              <b>Predicto</b>
-            </Typography>
-          </Link>
-          {userAddress === "" && !beaconConnection ? (
-            <ConnectButton
-              Tezos={Tezos}
-              setWallet={setWallet}
-              setUserAddress={setUserAddress}
-              setUserBalance={setUserBalance}
-              setBeaconConnection={setBeaconConnection}
-              wallet={wallet}
-            />
-          ) : (
-            <DisconnectButton
-              wallet={wallet}
-              setUserAddress={setUserAddress}
-              setUserBalance={setUserBalance}
-              setWallet={setWallet}
-              setTezos={setTezos}
-              setBeaconConnection={setBeaconConnection}
-              userBalance={userBalance}
-              userAddress={userAddress}
-            />
-          )}
-        </Toolbar>
-      </AppBar>
-      <Switch>
-        <Route exact path="/">
-          <div className="App">
-            <Markets />
-          </div>
-        </Route>
-        <Route
-          path="/market/:id"
-          render={({ match }) => <MarketDetails address={match.params.id} />}
-        ></Route>
-      </Switch>
-    </div>
+    <ThemeProvider theme={appliedTheme}>
+      <div>
+        <AppBar position="static">
+          <Toolbar className={classes.toolbar}>
+            <Link
+              to={"/"}
+              style={{
+                textDecoration: "none",
+                color: "white",
+              }}
+            >
+              <Typography variant="h5" style={{ cursor: "pointer" }}>
+                <b>Predicto</b>
+              </Typography>
+            </Link>
+            {userAddress === "" && !beaconConnection ? (
+              <ConnectButton
+                Tezos={Tezos}
+                setWallet={setWallet}
+                setUserAddress={setUserAddress}
+                setUserBalance={setUserBalance}
+                setBeaconConnection={setBeaconConnection}
+                wallet={wallet}
+              />
+            ) : (
+              <DisconnectButton
+                wallet={wallet}
+                setUserAddress={setUserAddress}
+                setUserBalance={setUserBalance}
+                setWallet={setWallet}
+                setTezos={setTezos}
+                setBeaconConnection={setBeaconConnection}
+                userBalance={userBalance}
+                userAddress={userAddress}
+              />
+            )}
+          </Toolbar>
+        </AppBar>
+        <Switch>
+          <Route exact path="/">
+            <div className="App">
+              <Markets />
+            </div>
+          </Route>
+          <Route
+            path="/market/:id"
+            render={({ match }) => <MarketDetails address={match.params.id} />}
+          ></Route>
+        </Switch>
+      </div>
+    </ThemeProvider>
   );
 }
 

@@ -14,6 +14,7 @@ import db from "../firebase";
 import axios from "axios";
 import BounceLoader from "react-spinners/BounceLoader";
 import markets from "../data/dummyMarketData";
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 function MarketDetails({ address }) {
   const classes = useStyles2();
@@ -23,8 +24,20 @@ function MarketDetails({ address }) {
   const [market, setMarket] = useState(null);
   const [marketDataContract, setMarketDataContract] = useState(null);
   const [value, setValue] = useState(0);
-  const handleChange = (event, newValue) => {
+  const [outcome, setOutcome] = useState(0);
+  const [howMuch, setHowMuch] = useState(null);
+
+  const handleChangeHowMuch = (event) => {
+    setHowMuch(event.target.value);
+  };
+
+  const handleChangeTabs = (event, newValue) => {
     setValue(newValue);
+  };
+  const handleChangeOutcome = (event, outcome) => {
+    if (outcome !== null) {
+      setOutcome(outcome);
+    }
   };
   useEffect(() => {
     console.log(address);
@@ -80,7 +93,7 @@ function MarketDetails({ address }) {
             <MuiThemeProvider theme={theme}>
               <Tabs
                 value={value}
-                onChange={handleChange}
+                onChange={handleChangeTabs}
                 TabIndicatorProps={{
                   style: {
                     backgroundColor: "#F48FB1",
@@ -99,14 +112,46 @@ function MarketDetails({ address }) {
                 <Typography variant={"body1"} className={classes.text}>
                   Pick outcome
                 </Typography>
-                <div className={classes.outcomes}>
-                  <Paper className={classes.yes}>
+                <ToggleButtonGroup
+                  color="secondary"
+                  className={classes.outcomes}
+                  value={outcome}
+                  exclusive
+                  onChange={handleChangeOutcome}
+                  aria-label="text alignment"
+                >
+                  <ToggleButton
+                    value={0}
+                    fullwidth={true}
+                    style={{
+                      color: "white",
+                      flex: 1,
+                      backgroundColor: outcome === 0 && "#4BB84B",
+                      border: "1px solid #4BB84B",
+                    }}
+                  >
+                    Yes ${marketDataContract.yesPrice / 1000}
+                  </ToggleButton>
+                  <div style={{ width: "8px" }}></div>
+                  <ToggleButton
+                    value={1}
+                    fullwidth={true}
+                    style={{
+                      flex: 1,
+                      color: "white",
+                      backgroundColor: outcome === 1 && "#B64444",
+                      border: "1px solid #B64444",
+                    }}
+                  >
+                    No ${marketDataContract.noPrice / 1000}
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                {/*                   <Paper className={classes.yes}>
                     Yes ${marketDataContract.yesPrice / 1000}
                   </Paper>
                   <Paper className={classes.no}>
                     No ${marketDataContract.noPrice / 1000}
-                  </Paper>
-                </div>
+                  </Paper> */}
                 <Typography variant={"body1"} className={classes.text}>
                   How much?
                 </Typography>
@@ -115,6 +160,9 @@ function MarketDetails({ address }) {
                     className={classes.input}
                     placeholder="0"
                     variant="filled"
+                    value={howMuch}
+                    onChange={handleChangeHowMuch}
+                    
                   ></InputBase>
                   <Typography variant={"body1"} className={classes.usdText}>
                     Tez
@@ -168,6 +216,7 @@ function MarketDetails({ address }) {
                   <Button
                     variant="contained"
                     color="primary"
+                    type="submit"
                     className={classes.button}
                     fullWidth={true}
                   >
@@ -249,11 +298,17 @@ function MarketDetails({ address }) {
             )}
           </Paper>
         </div>
+        <h4 className={classes.questionText} style={{ bottom: "0px" }}>
+          Description
+        </h4>
+        <h6 style={{ color: "white", fontSize: "13px" }}>
+          {market.marketDescription}
+        </h6>
       </div>
     );
   } else {
     return (
-      <div>
+      <div className={classes.loadingBody}>
         <div className={classes.loading}>
           <BounceLoader color="#9282EC" loading={true} size={100} />
           <div style={{ height: "15px" }}></div>
