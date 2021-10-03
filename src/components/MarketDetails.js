@@ -15,8 +15,10 @@ import axios from "axios";
 import BounceLoader from "react-spinners/BounceLoader";
 import markets from "../data/dummyMarketData";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-
-function MarketDetails({ address, balance }) {
+/**
+ * @param {{Tezos: TezosToolkit}}
+ */
+function MarketDetails({ address, balance, Tezos }) {
   const classes = useStyles2();
   const theme = createTheme({
     palette: {},
@@ -26,9 +28,32 @@ function MarketDetails({ address, balance }) {
   const [value, setValue] = useState(0);
   const [outcome, setOutcome] = useState(0);
   const [howMuch, setHowMuch] = useState("");
-
+  const [estShare, setEstShare] = useState(0);
+  const [potentialProfit, setPotentialProfit] = useState(0);
   const handleChangeHowMuch = (event) => {
     setHowMuch(event.target.value);
+    if (value === 0) {
+      setEstShare(howMuch);
+      var howMuchNow = parseFloat(event.target.value);
+      var noPool = marketDataContract.noPool / 1000000;
+      var noPoolnew = noPool + howMuchNow;
+      var yesPoolOld = marketDataContract.yesPool / 1000000;
+      var yesPoolTemp = yesPoolOld + howMuchNow;
+      var yesPool = marketDataContract.invariant / (1000000000000 * noPoolnew);
+
+      /*       console.log(
+        "noPoolnew",
+        noPoolnew,
+        "yesPoolTemp:",
+        yesPoolTemp,
+        "yesPool:",
+        yesPool
+      ); */
+      setEstShare(yesPoolTemp - yesPool);
+      var potential = yesPoolTemp - yesPool - howMuchNow;
+      setPotentialProfit(potential);
+      //console.log("estShare:", estShare);
+    }
   };
 
   const handleChangeTabs = (event, newValue) => {
@@ -108,123 +133,180 @@ function MarketDetails({ address, balance }) {
               </Tabs>
             </MuiThemeProvider>
             {value === 0 && (
-              <form onSubmit={(event)=>{
-                event.preventDefault();
-                console.log(howMuch)}}>
-              <div className={classes.tabContent}>
-                <Typography variant={"body1"} className={classes.text}>
-                  Pick outcome
-                </Typography>
-                <ToggleButtonGroup
-                  color="secondary"
-                  className={classes.outcomes}
-                  value={outcome}
-                  exclusive
-                  onChange={handleChangeOutcome}
-                  aria-label="text alignment"
-                >
-                  <ToggleButton
-                    value={0}
-                    fullWidth
-                    style={{
-                      color: "white",
-                      flex: 1,
-                      backgroundColor: outcome === 0 && "#4BB84B",
-                      border: "1px solid #4BB84B",
-                    }}
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  console.log(howMuch);
+                }}
+              >
+                <div className={classes.tabContent}>
+                  <Typography variant={"body1"} className={classes.text}>
+                    Pick outcome
+                  </Typography>
+                  <ToggleButtonGroup
+                    color="secondary"
+                    className={classes.outcomes}
+                    value={outcome}
+                    exclusive
+                    onChange={handleChangeOutcome}
+                    aria-label="text alignment"
                   >
-                    Yes ${marketDataContract.yesPrice / 1000}
-                  </ToggleButton>
-                  <div style={{ width: "8px" }}></div>
-                  <ToggleButton
-                    value={1}
-                    fullWidth
-                    style={{
-                      flex: 1,
-                      color: "white",
-                      backgroundColor: outcome === 1 && "#B64444",
-                      border: "1px solid #B64444",
-                    }}
-                  >
-                    No ${marketDataContract.noPrice / 1000}
-                  </ToggleButton>
-                </ToggleButtonGroup>
-                {/*                   <Paper className={classes.yes}>
+                    <ToggleButton
+                      value={0}
+                      fullWidth
+                      style={{
+                        color: "white",
+                        flex: 1,
+                        backgroundColor: outcome === 0 && "#4BB84B",
+                        border: "1px solid #4BB84B",
+                      }}
+                    >
+                      Yes ${marketDataContract.yesPrice / 1000}
+                    </ToggleButton>
+                    <div style={{ width: "8px" }}></div>
+                    <ToggleButton
+                      value={1}
+                      fullWidth
+                      style={{
+                        flex: 1,
+                        color: "white",
+                        backgroundColor: outcome === 1 && "#B64444",
+                        border: "1px solid #B64444",
+                      }}
+                    >
+                      No ${marketDataContract.noPrice / 1000}
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                  {/*                   <Paper className={classes.yes}>
                     Yes ${marketDataContract.yesPrice / 1000}
                   </Paper>
                   <Paper className={classes.no}>
                     No ${marketDataContract.noPrice / 1000}
                   </Paper> */}
-                <Typography variant={"body1"} className={classes.text}>
-                  How much?
-                </Typography>
-                <div className={classes.rowInput} style={{marginBottom:howMuch?howMuch<1?"2px":"20px":"20px"}}>
-                  <InputBase
-                    className={classes.input}
+                  <Typography variant={"body1"} className={classes.text}>
+                    How much?
+                  </Typography>
+                  <div
+                    className={classes.rowInput}
                     style={{
-                      border: howMuch?howMuch<1?"1px solid red":howMuch>balance?"1px solid red":"1px solid #9282EC":"1px solid #9282EC",
+                      marginBottom: howMuch
+                        ? howMuch < 1
+                          ? "2px"
+                          : "20px"
+                        : "20px",
                     }}
-                    placeholder="0"
-                    variant="filled"
-                    value={howMuch}
-                    type="number"
-                    onChange={handleChangeHowMuch}
-                    error={howMuch?howMuch<1?true:howMuch>balance?true:false:false}
-                  ></InputBase>
-                  <Typography variant={"body1"} className={classes.usdText}>
-                    Tez
-                  </Typography>
-                </div>
-                {howMuch?howMuch<1?<Typography variant={"body1"} style={{color:"red",fontSize:"12px",marginLeft:"10px",marginBottom:"10px"}}>
-                  Cant be less than 1 tez
-                  </Typography>:howMuch>balance?<Typography variant={"body1"} style={{color:"red",fontSize:"12px",marginLeft:"10px",marginBottom:"10px"}}>
-                  Cannot be more than your balance
-                  </Typography>:"":""}
-                <div className={classes.rowBottom}>
-                  <Typography
-                    variant={"body1"}
-                    className={classes.bottomtextLeft}
                   >
-                    Base Cost
-                  </Typography>
-                  <Typography variant={"h6"} className={classes.bottomText}>
-                    {howMuch?howMuch:0} tez
-                  </Typography>
+                    <InputBase
+                      className={classes.input}
+                      style={{
+                        border: howMuch
+                          ? howMuch < 1
+                            ? "1px solid red"
+                            : howMuch > balance / 10 ** 6
+                            ? "1px solid red"
+                            : "1px solid #9282EC"
+                          : "1px solid #9282EC",
+                      }}
+                      placeholder="0"
+                      variant="filled"
+                      value={howMuch}
+                      type="number"
+                      onChange={handleChangeHowMuch}
+                      error={
+                        howMuch
+                          ? howMuch < 1
+                            ? true
+                            : howMuch > balance / 10 ** 6
+                            ? true
+                            : false
+                          : false
+                      }
+                    ></InputBase>
+                    <Typography variant={"body1"} className={classes.usdText}>
+                      Tez
+                    </Typography>
+                  </div>
+                  {howMuch ? (
+                    howMuch < 1 ? (
+                      <Typography
+                        variant={"body1"}
+                        style={{
+                          color: "red",
+                          fontSize: "12px",
+                          marginLeft: "10px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        Cant be less than 1 tez
+                      </Typography>
+                    ) : howMuch > balance / 10 ** 6 ? (
+                      <Typography
+                        variant={"body1"}
+                        style={{
+                          color: "red",
+                          fontSize: "12px",
+                          marginLeft: "10px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        Cannot be more than your balance
+                      </Typography>
+                    ) : (
+                      ""
+                    )
+                  ) : (
+                    ""
+                  )}
+                  <div className={classes.rowBottom}>
+                    <Typography
+                      variant={"body1"}
+                      className={classes.bottomtextLeft}
+                    >
+                      Base Cost
+                    </Typography>
+                    <Typography variant={"h6"} className={classes.bottomText}>
+                      {howMuch ? howMuch : 0} tez
+                    </Typography>
+                  </div>
+                  <div className={classes.rowBottom}>
+                    <Typography
+                      variant={"body1"}
+                      className={classes.bottomtextLeft}
+                    >
+                      Estimated Shares Bought
+                    </Typography>
+                    <Typography variant={"h6"} className={classes.bottomText}>
+                      {estShare ? parseFloat(estShare).toFixed(3) : 0}{" "}
+                      {outcome === 0 ? "Yes" : "No"}
+                    </Typography>
+                  </div>
+                  <div className={classes.rowBottom}>
+                    <Typography
+                      variant={"body1"}
+                      className={classes.bottomtextLeft}
+                    >
+                      Potential Profit
+                    </Typography>
+                    <Typography variant={"h6"} className={classes.bottomText}>
+                      {potentialProfit
+                        ? parseFloat(potentialProfit).toFixed(3)
+                        : 0}{" "}
+                      tez
+                    </Typography>
+                  </div>
+                  <div className={classes.buttonDiv}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      className={classes.button}
+                      fullWidth={true}
+                    >
+                      Buy
+                    </Button>
+                  </div>
                 </div>
-                <div className={classes.rowBottom}>
-                  <Typography
-                    variant={"body1"}
-                    className={classes.bottomtextLeft}
-                  >
-                    Estimated Shares Bought
-                  </Typography>
-                  <Typography variant={"h6"} className={classes.bottomText}>
-                    14 {outcome===0?"Yes":"No"}
-                  </Typography>
-                </div>
-                <div className={classes.rowBottom}>
-                  <Typography
-                    variant={"body1"}
-                    className={classes.bottomtextLeft}
-                  >
-                    Potential Profit
-                  </Typography>
-                  <Typography variant={"h6"} className={classes.bottomText}>
-                    21 tez
-                  </Typography>
-                </div>
-                <div className={classes.buttonDiv}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    className={classes.button}
-                    fullWidth={true}
-                  >
-                    Buy
-                  </Button>
-                </div>
-              </div></form>
+              </form>
             )}
             {value === 1 && (
               <div className={classes.tabContent}>
