@@ -15,6 +15,7 @@ import axios from "axios";
 import BounceLoader from "react-spinners/BounceLoader";
 import markets from "../data/dummyMarketData";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { toast } from "react-toastify";
 /**
  * @param {{Tezos: TezosToolkit}}
  */
@@ -30,6 +31,8 @@ function MarketDetails({ address, balance, Tezos }) {
   const [howMuch, setHowMuch] = useState("");
   const [estShare, setEstShare] = useState(0);
   const [potentialProfit, setPotentialProfit] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
   const handleChangeHowMuch = (event) => {
     setHowMuch(event.target.value);
     if (value === 0) {
@@ -40,7 +43,6 @@ function MarketDetails({ address, balance, Tezos }) {
       var yesPoolOld = marketDataContract.yesPool / 1000000;
       var yesPoolTemp = yesPoolOld + howMuchNow;
       var yesPool = marketDataContract.invariant / (1000000000000 * noPoolnew);
-
       /*       console.log(
         "noPoolnew",
         noPoolnew,
@@ -62,6 +64,20 @@ function MarketDetails({ address, balance, Tezos }) {
   const handleChangeOutcome = (event, outcome) => {
     if (outcome !== null) {
       setOutcome(outcome);
+    }
+  };
+  const buy = (e) => {
+    e.preventDefault();
+    if (parseFloat(howMuch) > parseFloat(balance)) {
+      toast.error("Insufficient balance", {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      return;
+    } else {
+      setLoading(true);
+      setLoadingText("Buying Now....");
+      Tezos.contract.at(address); //todo
     }
   };
   useEffect(() => {
