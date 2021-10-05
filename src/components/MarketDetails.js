@@ -16,15 +16,27 @@ import BounceLoader from "react-spinners/BounceLoader";
 import markets from "../data/dummyMarketData";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 /**
  * @param {{Tezos: TezosToolkit}}
  */
-function MarketDetails({ address, balance, Tezos }) {
+function MarketDetails({
+  Tezos,
+  address,
+  balance,
+  userAddress,
+  updateBalance,
+}) {
   const classes = useStyles2();
   const theme = createTheme({
     palette: {},
   });
   const [market, setMarket] = useState(null);
+  const [outcomeBalance, setOutcomeBalance] = useState({
+    yes: 0,
+    no: 0,
+  });
   const [marketDataContract, setMarketDataContract] = useState(null);
   const [value, setValue] = useState(0);
   const [outcome, setOutcome] = useState(0);
@@ -32,10 +44,11 @@ function MarketDetails({ address, balance, Tezos }) {
   const [estShare, setEstShare] = useState(0);
   const [potentialProfit, setPotentialProfit] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState("");
+  const [buyingPrice, setBuyingPrice] = useState(0);
+  const [loadingText, setLoadingText] = useState("Loading");
   const handleChangeHowMuch = (event) => {
     setHowMuch(event.target.value);
-    if (value === 0) {
+    if (outcome === 0) {
       setEstShare(howMuch);
       var howMuchNow = parseFloat(event.target.value);
       var noPool = marketDataContract.noPool / 1000000;
@@ -52,9 +65,22 @@ function MarketDetails({ address, balance, Tezos }) {
         yesPool
       ); */
       setEstShare(yesPoolTemp - yesPool);
+      setBuyingPrice(parseFloat(howMuchNow / (yesPoolTemp - yesPool)));
       var potential = yesPoolTemp - yesPool - howMuchNow;
       setPotentialProfit(potential);
       //console.log("estShare:", estShare);
+    } else {
+      setEstShare(howMuch);
+      var howMuchNow1 = parseFloat(event.target.value);
+      var yesPool1 = marketDataContract.yesPool / 1000000;
+      var yesPoolnew = yesPool1 + howMuchNow1;
+      var noPoolOld = marketDataContract.noPool / 1000000;
+      var noPoolTemp = noPoolOld + howMuchNow1;
+      var noPool1 = marketDataContract.invariant / (1000000000000 * yesPoolnew);
+      setEstShare(noPoolTemp - noPool1);
+      setBuyingPrice(parseFloat(howMuchNow1 / (noPoolTemp - noPool1)));
+      var potential1 = noPoolTemp - noPool1 - howMuchNow1;
+      setPotentialProfit(potential1);
     }
   };
 
@@ -77,7 +103,88 @@ function MarketDetails({ address, balance, Tezos }) {
     } else {
       setLoading(true);
       setLoadingText("Buying Now....");
-      Tezos.contract.at(address); //todo
+      Tezos.wallet.at(address).then((contract) => {
+        contract.methods
+          .buy(outcome === 0)
+          .send({ amount: parseFloat(howMuch), mutez: false })
+          .then((op) => {
+            console.log(`Hash: ${op.opHash}`);
+            setLoadingText(`Waiting for confirmation`);
+            return op.confirmation();
+          })
+          .then((result) => {
+            console.log(result);
+            if (result.completed) {
+              setLoadingText(`Getting new Market Data`);
+              axios
+                .get(
+                  `https://api.florencenet.tzkt.io/v1/contracts/${address}/storage/`
+                )
+                .then((response) => {
+                  toast.success("🦄 Transaction successfull", {
+                    position: "top-center",
+                    autoClose: 10000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                  });
+                  updateBalance();
+                  axios
+                    .get(
+                      `https://api.florencenet.tzkt.io/v1/contracts/${address}/bigmaps/balances/keys/${userAddress}`
+                    )
+                    .then((response) => {
+                      if (response.data) {
+                        setOutcomeBalance(response.data.value);
+                      } else {
+                        setOutcomeBalance({
+                          yes: 0,
+                          no: 0,
+                        });
+                      }
+                    })
+                    .catch((err) => {
+                      setOutcomeBalance({
+                        yes: 0,
+                        no: 0,
+                      });
+                    });
+                  setMarketDataContract(response.data);
+                  setLoading(false);
+                  setLoadingText("");
+                });
+            } else {
+              console.log("An error has occurred");
+              toast.error("Something went wrong", {
+                position: "top-center",
+                autoClose: 10000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+              });
+              setLoading(false);
+              setLoadingText("");
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            toast.error("Something went wrong", {
+              position: "top-center",
+              autoClose: 10000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            });
+            setLoading(false);
+            setLoadingText("");
+          });
+      });
     }
   };
   useEffect(() => {
@@ -93,8 +200,28 @@ function MarketDetails({ address, balance, Tezos }) {
       .then((response) => {
         setMarketDataContract(response.data);
       });
-  }, [address]);
-  if (marketDataContract && market) {
+    axios
+      .get(
+        `https://api.florencenet.tzkt.io/v1/contracts/${address}/bigmaps/balances/keys/${userAddress}`
+      )
+      .then((response) => {
+        if (response.data) {
+          setOutcomeBalance(response.data.value);
+        } else {
+          setOutcomeBalance({
+            yes: 0,
+            no: 0,
+          });
+        }
+      })
+      .catch((err) => {
+        setOutcomeBalance({
+          yes: 0,
+          no: 0,
+        });
+      });
+  }, [address, userAddress]);
+  if (marketDataContract && market && loading === false) {
     return (
       <div className={classes.body}>
         <Paper className={classes.header} elevation={5}>
@@ -117,12 +244,16 @@ function MarketDetails({ address, balance, Tezos }) {
                 .slice(4)}`}</Paper>
             </div>
             <div className={classes.marketBottomColumn}>
-              Volume
-              <Paper className={classes.price}>{`500 Tez`}</Paper>
+              Yes Balance
+              <Paper className={classes.price}>
+                {(parseFloat(outcomeBalance.yes) / 10 ** 6).toFixed(2)} Yes
+              </Paper>
             </div>
             <div className={classes.marketBottomColumn}>
-              Liquidity
-              <Paper className={classes.price}>{`200 Tez`}</Paper>
+              No Balance
+              <Paper className={classes.price}>
+                {(parseFloat(outcomeBalance.no) / 10 ** 6).toFixed(2)} No
+              </Paper>
             </div>
           </div>
         </Paper>
@@ -149,12 +280,7 @@ function MarketDetails({ address, balance, Tezos }) {
               </Tabs>
             </MuiThemeProvider>
             {value === 0 && (
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  console.log(howMuch);
-                }}
-              >
+              <form onSubmit={buy}>
                 <div className={classes.tabContent}>
                   <Typography variant={"body1"} className={classes.text}>
                     Pick outcome
@@ -177,7 +303,7 @@ function MarketDetails({ address, balance, Tezos }) {
                         border: "1px solid #4BB84B",
                       }}
                     >
-                      Yes ${marketDataContract.yesPrice / 1000}
+                      Yes {marketDataContract.yesPrice / 10}%
                     </ToggleButton>
                     <div style={{ width: "8px" }}></div>
                     <ToggleButton
@@ -190,7 +316,7 @@ function MarketDetails({ address, balance, Tezos }) {
                         border: "1px solid #B64444",
                       }}
                     >
-                      No ${marketDataContract.noPrice / 1000}
+                      No {marketDataContract.noPrice / 10}%
                     </ToggleButton>
                   </ToggleButtonGroup>
                   {/*                   <Paper className={classes.yes}>
@@ -294,6 +420,18 @@ function MarketDetails({ address, balance, Tezos }) {
                     <Typography variant={"h6"} className={classes.bottomText}>
                       {estShare ? parseFloat(estShare).toFixed(3) : 0}{" "}
                       {outcome === 0 ? "Yes" : "No"}
+                    </Typography>
+                  </div>
+                  <div className={classes.rowBottom}>
+                    <Typography
+                      variant={"body1"}
+                      className={classes.bottomtextLeft}
+                    >
+                      Estimated Buying Price
+                    </Typography>
+                    <Typography variant={"h6"} className={classes.bottomText}>
+                      {buyingPrice ? parseFloat(buyingPrice).toFixed(2) : 0}{" "}
+                      tez/{outcome === 0 ? "yes" : "no"}
                     </Typography>
                   </div>
                   <div className={classes.rowBottom}>
@@ -420,7 +558,7 @@ function MarketDetails({ address, balance, Tezos }) {
               fontWeight: "600",
             }}
           >
-            Loading.....
+            {loadingText}
           </Typography>
         </div>
       </div>

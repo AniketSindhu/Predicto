@@ -26,6 +26,10 @@ function App() {
       mode: "dark",
     },
   });
+  const updateBalance = async () => {
+    const balance = await Tezos.tz.getBalance(userAddress);
+    setUserBalance(balance.toNumber());
+  }
   return (
     <ThemeProvider theme={appliedTheme}>
       <div>
@@ -78,6 +82,8 @@ function App() {
                 address={match.params.id}
                 balance={userBalance}
                 Tezos={Tezos}
+                userAddress={userAddress}
+                updateBalance={updateBalance}
               />
             )}
           ></Route>
