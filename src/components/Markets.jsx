@@ -11,14 +11,13 @@ function Markets() {
   useEffect(() => {
     console.log("Hi");
     db.collection("markets")
-      .where("resolved", "==", false)
-      .onSnapshot((snapshot) =>
-        setMarkets(snapshot.docs.map((doc) => doc.data()))
-      );
+    .onSnapshot((snapshot) =>
+      setMarkets(snapshot.docs.map((doc) => doc.data()))
+    );
   }, []);
   return (
     <div>
-      <div className={classes.centerRow}>
+      {/*       <div className={classes.centerRow}>
         <Paper className={classes.dashBoard} variant="outlined" elevation={3}>
           <div className={classes.columnDashoard}>
             <Typography variant="h6">Portfolio Value</Typography>
@@ -33,7 +32,8 @@ function Markets() {
             <Typography variant="h4">$0.00</Typography>
           </div>
         </Paper>
-      </div>
+      </div> */}
+      <div style={{ marginTop: "20px" }} />
       <div className={classes.centerRow}>
         <div className={classes.TextFieldWhole}>
           <Search style={{ color: "White" }} />

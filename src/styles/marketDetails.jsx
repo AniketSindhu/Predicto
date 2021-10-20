@@ -60,8 +60,8 @@ const useStyles2 = makeStyles((theme) => ({
     margin: "40px 0px 20px 0px",
   },
   chart: {
-    flex: 2,
-    height: "420px",
+    flex: 1,
+    height: "380px",
     backgroundColor: "#100C18",
     border: "1px solid #9282EC",
     padding: "20px",
