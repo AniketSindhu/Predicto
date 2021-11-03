@@ -10,7 +10,7 @@ function Market({ marketData }) {
   useEffect(() => {
     axios
       .get(
-        `https://api.florencenet.tzkt.io/v1/contracts/${marketData.contractAddress}/storage/`
+        `https://api.granadanet.tzkt.io/v1/contracts/${marketData.contractAddress}/storage/`
       )
       .then((response) => {
         setMarketDataContract(response.data);

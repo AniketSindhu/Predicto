@@ -18,7 +18,7 @@ function DisconnectButton({
     setUserAddress("");
     setUserBalance(0);
     setWallet(null);
-    const tezosTK = new TezosToolkit("https://florencenet.smartpy.io");
+    const tezosTK = new TezosToolkit("https://granadanet.smartpy.io");
     setTezos(tezosTK);
     setBeaconConnection(false);
     console.log("disconnecting wallet");

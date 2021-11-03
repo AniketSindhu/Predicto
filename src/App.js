@@ -14,7 +14,7 @@ import { ToastContainer } from "react-toastify";
 function App() {
   const classes = useStyles();
   const [Tezos, setTezos] = useState(
-    new TezosToolkit("https://florencenet.smartpy.io")
+    new TezosToolkit("https://granadanet.smartpy.io")
   );
   const [wallet, setWallet] = useState(null);
   const [userAddress, setUserAddress] = useState("");
@@ -29,7 +29,7 @@ function App() {
   const updateBalance = async () => {
     const balance = await Tezos.tz.getBalance(userAddress);
     setUserBalance(balance.toNumber());
-  }
+  };
   return (
     <ThemeProvider theme={appliedTheme}>
       <div>
