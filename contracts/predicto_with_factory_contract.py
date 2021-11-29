@@ -127,7 +127,8 @@ class Predicto(ContractLibrary):
                 faTwoFlag = sp.TBool,
                 endTime = sp.TTimestamp,
                 isInitialized = sp.TBool,
-                result = sp.TBool
+                result = sp.TBool,
+                factoryAddress = sp.TAddress
         ))
 
     @sp.entry_point
@@ -371,7 +372,7 @@ class Predicto(ContractLibrary):
         sp.set_type(result,sp.TBool)
         sp.verify(self.data.isInitialized == sp.bool(True),"Market not initialized")
         sp.verify(self.data.isEventOver == sp.bool(False),"Market resolved already")
-        sp.verify(self.data.oracleAddress == sp.sender,"Oracale address wrong")
+        sp.verify(self.data.factoryAddress == sp.sender,"Must be called by factory contract")
         self.data.isEventOver = sp.bool(True)
         sp.if result == sp.bool(True):
             self.data.yesPrice = 1000
@@ -445,7 +446,8 @@ class PredictoFactory(sp.Contract):
             faTwoFlag = params.faTwoFlag,
             endTime = params.endTime,
             isInitialized = sp.bool(False),
-            result = sp.bool(True)))
+            result = sp.bool(True),
+            factoryAddress = sp.self_address))
 
         address = sp.local('address', sp.create_contract(
                 storage = market_data.value,
@@ -462,6 +464,15 @@ class PredictoFactory(sp.Contract):
                 tokenAddress = params.tokenAddress,
                 faTwoFlag = params.faTwoFlag,
                 isResolved= sp.bool(False))
+
+    @sp.entry_point
+    def resolve_market(self, params):
+        sp.set_type(params,sp.TRecord(questionId = sp.TString, result = sp.TBool))
+        sp.verify(sp.sender == self.data.markets[params.questionId].oracleAddress,"Must be called by the oracle")
+        #sp.verify(sp.now >= self.data.markets[params.questionId].endTime,"Cant resolve the market before resolving date")
+        resolve_entry_point = sp.contract(sp.TBool, self.data.markets[params.questionId].contractAddress, "resolveMarket").open_some()
+        sp.transfer(params.result, sp.tez(0), resolve_entry_point)
+        self.data.markets[params.questionId].isResolved = sp.bool(True)
 
 
 if "templates" not in __name__:
@@ -503,7 +514,23 @@ if "templates" not in __name__:
 
         c1.add_market(questionId = sp.string("124125"), question = sp.string("Will it rain today?"), endTime = sp.timestamp_from_utc(2021, 12, 20, 23, 59, 59), description = sp.string("If it rains today market will resolve to yes"), oracleAddress = alice.address, tokenAddress = token.address, faTwoFlag= sp.bool(False))
         
+        scenario.register(c1.predicto)
+        dynamic_contract = scenario.dynamic_contract(0, c1.predicto)
         
+        token.approve(spender = dynamic_contract.address, value = 1000 * TOKEN_DECIMALS ).run(sender = alice)
+        token.approve(spender = dynamic_contract.address, value = 1000 * TOKEN_DECIMALS ).run(sender = bob)
+        token.approve(spender = dynamic_contract.address, value = 1000 * TOKEN_DECIMALS ).run(sender = cat)
+
+        scenario.h1("Initializing Market")
+        dynamic_contract.call("initializeMarket", 10 * TOKEN_DECIMALS).run(sender=alice)
+        
+        scenario.h1("Buying 10 tez of yes bob")
+        dynamic_contract.call("buy",sp.record(choice=sp.bool(True),tokenAmount = 10 * TOKEN_DECIMALS)).run(sender=bob)
+        
+        
+        scenario.h1("Resolving market to no")
+        c1.resolve_market(questionId = sp.string("124125"), result = sp.bool(False)).run(sender = alice)
+
 """     ***Prediction market all functions testing***
 
         c1 = Predicto(questionId=sp.string("QuestionID"), oracleAddress=alice.address, endTime=sp.timestamp_from_utc(2021, 12, 20, 23, 59, 59),tokenAddress=token.address,faTwoFlag= sp.bool(False))
